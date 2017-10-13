@@ -28,7 +28,7 @@ std::ostream& operator << ( std::ostream& os, action const& a )
 {
     os << "( ";
 
-    switch (a.the_rotation)
+    switch (static_cast<long>(a.the_rotation))
     {
         case NONE:
             os << "None";

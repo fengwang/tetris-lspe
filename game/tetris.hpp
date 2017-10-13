@@ -53,8 +53,8 @@ struct tetris
     {
         auto const& cp = current_piece.piece_;
 
-        for ( auto r = 0L; r != cp.row(); ++r )
-            for ( auto c = 0L; c != cp.col(); ++c )
+        for ( long r = 0L; static_cast<unsigned long>(r) != cp.row(); ++r )
+            for ( long c = 0L; static_cast<unsigned long>(c) != cp.col(); ++c )
             {
                 if ( 0 == cp[r][c] ) continue;
                 if ( r+drop_row < 0 )
@@ -76,16 +76,16 @@ struct tetris
     {
         auto const& p = current_piece.piece_;
 
-        for ( long r = 0; r != p.row(); ++r )
-            for ( long c = 0; c != p.col(); ++c )
+        for ( long r = 0; static_cast<unsigned long>(r) != p.row(); ++r )
+            for ( long c = 0; static_cast<unsigned long>(c) != p.col(); ++c )
             {
                 //if ( r + drop_row < 0 ) continue;
 
                 if ( !( p[r][c] && r+drop_row >= 0 ) ) continue;
 
 
-                if ( c + drop_column >= board_cols ) return true;
-                if ( r + drop_row >= board_rows ) return true;
+                if ( static_cast<unsigned long>(c + drop_column) >= board_cols ) return true;
+                if ( static_cast<unsigned long>(r + drop_row) >= board_rows ) return true;
                 if ( board[r+drop_row][c+drop_column] != 0 ) return true;
             }
 

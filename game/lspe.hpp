@@ -47,8 +47,8 @@ struct lspe
     matrix_type const features( state_type const& s_ ) const
     {
         matrix_type     ans( features_to_use, 1 );
-        std::array<unsigned long, 10> hets{ s_.height(0), s_.height(1), s_.height(2), s_.height(3), s_.height(4), s_.height(5), s_.height(6), s_.height(7), s_.height(8), s_.height(9) };
-        std::array<unsigned long, 10> emps{ s_.empties(0), s_.empties(1), s_.empties(2), s_.empties(3), s_.empties(4), s_.empties(5), s_.empties(6), s_.empties(7), s_.empties(8), s_.empties(9) };
+        std::array<unsigned long, 10> hets{{ s_.height(0), s_.height(1), s_.height(2), s_.height(3), s_.height(4), s_.height(5), s_.height(6), s_.height(7), s_.height(8), s_.height(9) }};
+        std::array<unsigned long, 10> emps{{ s_.empties(0), s_.empties(1), s_.empties(2), s_.empties(3), s_.empties(4), s_.empties(5), s_.empties(6), s_.empties(7), s_.empties(8), s_.empties(9) }};
         // bias                                 // 1
         ans[0][0] = 1;
         //height of every column                // 10
@@ -149,7 +149,7 @@ struct lspe
     }
 
     // returns a tuple of reward and succeding state
-    auto const reward( state_type const& s_, action_type const& a_ ) const
+    auto reward( state_type const& s_, action_type const& a_ ) const
     {
         state_type s = s_;
         s.play_action( a_, false );
@@ -188,8 +188,8 @@ struct lspe
         double const v = std::inner_product( psi.begin(), psi.end(), theta.begin(), 0.0 );
         double const gamma = 0.99;
         //double const delta = gamma * lambda * delta + ( best_action_reward + gamma * std::inner_product( theta.begin(), theta.end(), psi_new.begin(), 0.0 ) - v );
-        double const delta = gamma * gamma * delta + ( best_action_reward + gamma * std::inner_product( theta.begin(), theta.end(), psi_new.begin(), 0.0 ) - v );
-        b += (v+delta) * psi;
+        double const delta_ = gamma * gamma * delta + ( best_action_reward + gamma * std::inner_product( theta.begin(), theta.end(), psi_new.begin(), 0.0 ) - v );
+        b += (v+delta_) * psi;
         A += psi * psi.transpose();
 
         psi = psi_new;
@@ -231,14 +231,14 @@ struct lspe
 
     // select best action for state s_ with piece p_ and weight itor it_
     template< typename Itor >
-    auto const select_action( state_type const& s_, Itor it_, piece_type const& p_ ) const
+    auto select_action( state_type const& s_, Itor it_, piece_type const& p_ ) const
     {
         // for all possible actions
         action_type best_action{ NONE, 0 };
         state_type best_state;
         value_type best_score = -99999999999999.0;
 
-        std::array<rotation, 4> all_rotations{ NONE, CLOCKWISE, COUNTER_CLOCKWISE, FLIP };
+        std::array<rotation, 4> all_rotations{{ NONE, CLOCKWISE, COUNTER_CLOCKWISE, FLIP }};
         state_type s = s_;
         s.current_piece = p_;
 
@@ -282,8 +282,8 @@ struct lspe
         state_type best_state;
         value_type best_score = -99999999999999.0;
 
-        std::array<rotation, 4> const all_rotations{ NONE, CLOCKWISE, COUNTER_CLOCKWISE, FLIP };
-        std::array<piece_type, 7> const all_pieces{ piece_type{1}, piece_type{2}, piece_type{3}, piece_type{4}, piece_type{5}, piece_type{6}, piece_type{7} };
+        std::array<rotation, 4> const all_rotations{{ NONE, CLOCKWISE, COUNTER_CLOCKWISE, FLIP }};
+        std::array<piece_type, 7> const all_pieces{{ piece_type{1}, piece_type{2}, piece_type{3}, piece_type{4}, piece_type{5}, piece_type{6}, piece_type{7} }};
 
         for ( auto const& r : all_rotations ) // for all possible rotations
         {

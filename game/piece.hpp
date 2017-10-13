@@ -73,7 +73,7 @@ struct piece
     {
         auto buf = piece_;
 
-        switch ( rot )
+        switch ( static_cast<long>(rot) )
         {
             case NONE:
                 break;
