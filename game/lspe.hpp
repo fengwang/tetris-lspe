@@ -43,6 +43,21 @@ struct lspe
     value_type                  lambda;
     value_type                  delta;
 
+    lspe( unsigned long training_set_ = 10000, value_type lambda_ = 0.002 ) : training_set( training_set_ ), lambda( lambda_ )
+    {
+        A.resize( features_to_use, features_to_use );
+        e.resize( features_to_use, 1 );
+        e_new.resize( features_to_use, 1 );
+        b.resize( features_to_use, 1 );
+        psi.resize( features_to_use, 1 );
+        psi_new.resize( features_to_use, 1 );
+        psi_diff.resize( features_to_use, 1 );
+
+        theta.resize( features_to_use, 1 );
+        theta.resize( features_to_use, 1 );
+        std::fill( theta.begin(), theta.end(), -0.010 );
+    }
+
     // returns a column vector of all the features
     matrix_type const features( state_type const& s_ ) const
     {
@@ -92,21 +107,6 @@ struct lspe
         ans[32][0] = *std::max_element( ans.begin()+21, ans.begin()+30 ); //max cliffs
 
         return ans/20.0;
-    }
-
-    lspe( unsigned long training_set_ = 10000, value_type lambda_ = 0.002 ) : training_set( training_set_ ), lambda( lambda_ )
-    {
-        A.resize( features_to_use, features_to_use );
-        e.resize( features_to_use, 1 );
-        e_new.resize( features_to_use, 1 );
-        b.resize( features_to_use, 1 );
-        psi.resize( features_to_use, 1 );
-        psi_new.resize( features_to_use, 1 );
-        psi_diff.resize( features_to_use, 1 );
-
-        theta.resize( features_to_use, 1 );
-        theta.resize( features_to_use, 1 );
-        std::fill( theta.begin(), theta.end(), -0.010 );
     }
 
     void operator()()
@@ -159,26 +159,6 @@ struct lspe
 
     void step_in()
     {
-#if 0
-        //auto const& ba = select_action( game, theta.begin() ); // return best_score best_action next_state
-        //auto const& best_action = std::get<1>( ba );
-        auto const& best_action = select_action( game, theta.begin() );
-        auto const& best_reward = reward( game, best_action );
-        double const best_action_reward = best_reward.first;
-        game.play_action( best_action, false );
-
-        psi_new = features( game );
-        psi_diff = psi - psi_new;
-
-        A += e * psi_diff.transpose();
-
-        b += best_action_reward * e;
-
-        e *= lambda;
-        e += psi_new;
-
-        psi = psi_new;
-#else
         auto const& best_action = select_action( game, theta.begin() );
         auto const& best_reward = reward( game, best_action );
         double const best_action_reward = best_reward.first;
@@ -193,8 +173,6 @@ struct lspe
         A += psi * psi.transpose();
 
         psi = psi_new;
-#endif
-
     }
 
     void update_theta()
@@ -277,7 +255,6 @@ struct lspe
         // enumerate all possible succeeding pieces
         // select the one with best score
         // for all possible actions
-        //action_type best_action;
         action_type best_action{ NONE, 0 };
         state_type best_state;
         value_type best_score = -99999999999999.0;
@@ -302,8 +279,6 @@ struct lspe
                     val += std::get<0>( best_action_at_next_step );
                 }
                 val /= value_type{ 7.0 };
-                //auto val = state_value( rw.second, it_ );
-                //
                 val += state_value( rw.second, it_ ); //...
                 double const current_score = rw.first + val;
 
