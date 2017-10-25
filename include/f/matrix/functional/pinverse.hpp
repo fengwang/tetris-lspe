@@ -1,11 +1,7 @@
 #ifndef MPINVERSE_HPP_INCLUDED_DSOIJ498UASFDKLJHVJNSAFIUH49UHSFDKJHSJKNMVCKJHAFDSKJHAUIHASDKJVKJHSFUH
 #define MPINVERSE_HPP_INCLUDED_DSOIJ498UASFDKLJHVJNSAFIUH49UHSFDKJHSJKNMVCKJHAFDSKJHAUIHASDKJVKJHSFUH
 
-#include <f/matrix/matrix.hpp>
-#include <f/matrix/numeric/singular_value_decomposition.hpp>
-
-#include <algorithm>
-#include <cstddef>
+#include "../numeric/singular_value_decomposition.hpp"
 
 namespace f
 {
@@ -15,14 +11,13 @@ namespace f
         //non-square matrix situations need considering
         Matrix u, w, v;
         singular_value_decomposition( m, u, w, v );
-
         return v * w * u.transpose();
     }
 
     template<typename Matrix>
     Matrix const pinv( const Matrix& m )
     {
-        return pinverse(m);
+        return pinverse( m );
     }
 
 }//namespace f

@@ -23,7 +23,7 @@ int main( int argc, char const* argv[] )
     srand( 0 );
     std::vector<double> weights;
 
-    train_lspe( weights, 100000, 0.001 );
+    train_lspe( weights, 100000000, 0.001 );
 
     srand( 0 );
     play_lspe( weights );

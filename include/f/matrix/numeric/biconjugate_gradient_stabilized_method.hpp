@@ -1,15 +1,6 @@
 #ifndef MBICONJUGATE_GRADIENT_STABLIZED_METHOD_INCLUDED_FSDOJIIOSFADKLJOIRSDFKJSFOIJSDFOI489UVJKFUFF
 #define MBICONJUGATE_GRADIENT_STABLIZED_METHOD_INCLUDED_FSDOJIIOSFADKLJOIRSDFKJSFOIJSDFOI489UVJKFUFF
 
-#include <f/matrix/matrix.hpp>
-
-//#include <f/algorithm.hpp>
-
-#include <algorithm>
-#include <cmath>
-#include <cstddef>
-#include <cassert>
-
 namespace f
 {
 
@@ -29,13 +20,13 @@ namespace f
     //          1       --      failed
     //
     // TODO: opmtimize this algorithm to get rid of round-offs, and test it with more data
-    template< typename T1, std::size_t D1, typename A1, typename T2, std::size_t D2, typename A2, typename T3, std::size_t D3, typename A3>
+    template< typename T1, typename A1, typename T2, typename A2, typename T3, typename A3>
     int
-    biconjugate_gradient_stabilized_method( const matrix<T1, D1, A1>&     A, //A[n][n]
-                                           matrix<T2, D2, A2>&           x, //x[n]
-                                           const matrix<T3, D3, A3>&     b, //b[n]
-                                           const std::size_t           max_loops = 100,
-                                           const T1                    eps = 1.0e-10 )
+    biconjugate_gradient_stabilized_method( const matrix<T1, A1>&     A, //A[n][n]
+                                            matrix<T2, A2>&           x, //x[n]
+                                            const matrix<T3, A3>&     b, //b[n]
+                                            const std::size_t           max_loops = 100,
+                                            const T1                    eps = 1.0e-10 )
     {
         //typedef matrix<T1, D1, A1>     matrix_type;
         typedef T1                   value_type;
@@ -45,9 +36,11 @@ namespace f
         auto const n     = A.row();
 
         //if no initial guess of x, then set its initial guess to b
-        if ( ( n != x.row() ) || ( 1 != x.col() ) || ( 0 == std::count_if( x.begin(), x.end(), []( T2 const v ) { return v != T2( 0 ); } ) ) )
-            x = b;
-
+        if ( ( n != x.row() ) || ( 1 != x.col() ) || ( 0 == std::count_if( x.begin(), x.end(), []( T2 const v )
+    {
+        return v != T2( 0 );
+        } ) ) )
+        x = b;
         auto r = b - A * x;
         auto const r_ = r;
         auto p = r;
@@ -57,46 +50,46 @@ namespace f
         auto new_r = r;
         auto rem = r;
         auto const EPS = eps * n;
-        value_type const zero = value_type(0);
+        value_type const zero = value_type( 0 );
 
-        if ( dot(r, r) < EPS ) return 0;
+        if ( dot( r, r ) < EPS ) return 0;
 
         for ( std::size_t loops = 0; loops != max_loops; ++loops )
         {
             ap = A * p;
-
-            auto const alpha = dot(r, r_) / dot( ap, r_ );
+            auto const alpha = dot( r, r_ ) / dot( ap, r_ );
 
             if ( zero == alpha ) return 1;
 
-            if ( std::isinf(alpha) || std::isnan(alpha) ) return 1;
+            if ( std::isinf( alpha ) || std::isnan( alpha ) ) return 1;
 
             s = r - alpha * ap;
             as = A * s;
-            auto const omega = dot( as, s) / dot( as, as );
-            if ( std::isinf(omega) || std::isnan(omega) ) return 1;
+            auto const omega = dot( as, s ) / dot( as, as );
+
+            if ( std::isinf( omega ) || std::isnan( omega ) ) return 1;
 
             x += alpha * p + omega * s;
             new_r = s - omega * as;
-            auto const beta = dot( new_r, r_ ) * alpha / dot(r, r_) / omega;
-            if ( std::isinf(beta) || std::isnan(beta) ) return 1;
+            auto const beta = dot( new_r, r_ ) * alpha / dot( r, r_ ) / omega;
+
+            if ( std::isinf( beta ) || std::isnan( beta ) ) return 1;
 
             r = new_r;
             p = r + beta * ( p - omega * ap );
-
             rem = A * x - b;
 
-            if ( dot(rem, rem) <= EPS )  return 0;
+            if ( dot( rem, rem ) <= EPS )  return 0;
         }
 
         return 0;
     }
 
-    template< typename T1, std::size_t D1, typename A1, typename T2, std::size_t D2, typename A2, typename T3, std::size_t D3, typename A3>
+    template< typename T1, typename A1, typename T2, typename A2, typename T3, typename A3>
     int
-    bicgstab(  const matrix<T1, D1, A1>&     A, //A[n][n]
-               matrix<T2, D2, A2>&           x, //x[n]
-               const matrix<T3, D3, A3>&     b, //b[n]
+    bicgstab(  const matrix<T1, A1>&     A, //A[n][n]
+               matrix<T2, A2>&           x, //x[n]
+               const matrix<T3, A3>&     b, //b[n]
                const std::size_t           max_loops = 100,
                const T1                    eps = 1.0e-10 )
     {
@@ -128,7 +121,7 @@ namespace f
         return ans;
     }
 
-    template<typename Matrix, typename T, std::size_t D, typename A_>
+    template<typename Matrix, typename T, typename A_>
     std::size_t bicgstab( const Matrix& A, matrix<T, D, A_>& x, const matrix<T, D, A_>& b, std::size_t const loops = 100, T const eps = T( 1.0e-15 ) )
     {
         return biconjugate_gradient_stablized_method( A, x, b, loops, eps );

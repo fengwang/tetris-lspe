@@ -1,38 +1,31 @@
 #ifndef MEXPM_HPP_INCLUDED_SDFOIJ3498USFDKJDSVJSFD9IH498HSFDKJHVKJSFADUH4UHKSFADJHIEURHSFKDJHEIUHFUH
 #define MEXPM_HPP_INCLUDED_SDFOIJ3498USFDKJDSVJSFD9IH498HSFDKJHVKJSFADUH4UHKSFADJHIEURHSFKDJHEIUHFUH
 
-#include <f/matrix/matrix.hpp>
-#include <f/matrix/numeric/norm.hpp>
-#include <f/matrix/functional.hpp>
-
-#include <cassert>
-#include <cmath>
-
-#include <iostream>
+#include "./norm.hpp"
 
 namespace f
 {
     namespace expm_private
     {
-    template<typename T>
-    struct fix_complex_value_type
-    {
-        typedef T value_type;
-    };
+        template<typename T>
+        struct fix_complex_value_type
+        {
+            typedef T value_type;
+        };
 
-    template<typename T>
-    struct fix_complex_value_type<std::complex<T> >
-    {
-        typedef typename fix_complex_value_type<T>::value_type value_type;
-    };
+        template<typename T>
+        struct fix_complex_value_type<std::complex<T>>
+        {
+            typedef typename fix_complex_value_type<T>::value_type value_type;
+        };
     }//namespace expm_private
 
     // Nicholas J. Higham. The Scaling and Squaring Method for the Matrix Exponential Revisited. SIAM Review (2009) 51: pp. 747-764.
-    template<typename T, std::size_t D, typename A_>
-    const matrix<T, D, A_>
-    expm( const matrix<T, D, A_>& A )
+    template<typename T, typename A_>
+    const matrix<T, A_>
+    expm( const matrix<T, A_>& A )
     {
-        typedef matrix<T, D, A_>                                                        matrix_type;
+        typedef matrix<T, A_>                                                           matrix_type;
         typedef typename matrix_type::value_type                                        value_type_;
         typedef typename expm_private::fix_complex_value_type<value_type_>::value_type  value_type;
         typedef typename matrix_type::size_type                                         size_type;
@@ -55,16 +48,8 @@ namespace f
         value_type const norm_A               = norm_1( A );
         //value_type const ratio                = theta[13] / norm_A;
         value_type const ratio                = norm_A / theta[13];
-        size_type const s               = ratio < value_type(1) ? 0 : static_cast<size_type>( std::ceil( std::log2( ratio ) ) );
-        value_type const s__2           = s ? value_type(1 << s) : value_type(1);
-
-        /*
-        std::cerr << "Matrix expm starting with S__2 is " << s__2 << "\n";
-        if ( std::abs( s__2 - 1.0 ) < 0.1  )
-            std::cerr << "\tencountering matrix \n" << A << "\n";
-        */
-
-
+        size_type const s               = ratio < value_type( 1 ) ? 0 : static_cast<size_type>( std::ceil( std::log2( ratio ) ) );
+        value_type const s__2           = s ? value_type( 1 << s ) : value_type( 1 );
         matrix_type const& _A                   = A / s__2;
         size_type const n                    = _A.row();
         static value_type const c []    = { 0.000000000000000,  // 0
@@ -95,7 +80,7 @@ namespace f
                                             //182,                // 13
                                             1.82e+2,                // 13
                                             1                   // 14
-                                        };
+                                          };
         matrix_type const& _A2 = _A * _A;
         matrix_type const& _A4 = _A2 * _A2;
         matrix_type const& _A6 = _A2 * _A4;
@@ -104,32 +89,9 @@ namespace f
         matrix_type const& VU = V + U;
         matrix_type const& UV = V - U;
         matrix_type F = VU / UV;
-        //matrix_type      F   = ( V + U ) / ( V - U );
 
-        ////!!!!!!!!!!!!!!!!
-        /*
-        matrix_type const& _A                   = A / s__2;
-        matrix_type _a = _A;
-        size_type const n                       = _A.row();
-        auto F = eye<value_type_>( n, n );
-
-        const unsigned long loops = 10;
-        value_type factor = value_type(1);
-
-        for ( unsigned long i = 0; i != loops; ++i )
-        {
-            factor /= i;
-            F = F + _a * factor;
-            if ( i + 1 == loops ) break;
-            _a *= _A;
-        }
-        */
-        ////!!!!!!!!!!!!!!!!
         for ( size_type i = 0; i != s; ++i )
             F *= F;
-
-
-        //std::cerr << "EXPM ends.\n";
 
         return F;
     }

@@ -1,16 +1,6 @@
 #ifndef MDIAG_HPP_INCLUDED_SDFOIJ48USAFLJ4UJINKFDJHORUDJKLSLKJOT4UIDFJFDLKJDSOGIJROIJDGLIJROIJGDIOJF
 #define MDIAG_HPP_INCLUDED_SDFOIJ48USAFLJ4UJINKFDJHORUDJKLSLKJOT4UIDFJFDLKJDSOGIJROIJDGLIJROIJGDIOJF
 
-#include <f/matrix/matrix.hpp>
-
-#include <iterator>
-#include <algorithm>
-#include <cstddef>
-#include <vector>
-#include <deque>
-#include <set>
-#include <valarray>
-
 namespace f
 {
     /*
@@ -37,49 +27,48 @@ namespace f
                 [ 0 0 ^ 0 0 ]
                 [ 0 0 0 % 0 ]
       */
-    template<typename T, std::size_t D, typename A>
-    matrix<T,D,A> const diag( const matrix<T,D,A>& m, const std::ptrdiff_t offset = 0 )
+    template<typename T,  typename A>
+    matrix<T, A> const diag( const matrix<T, A>& m, const std::ptrdiff_t offset = 0 )
     {
-        const std::size_t dim = std::min(m.row(), m.col()) + (offset > 0 ? offset : -offset);
-        matrix<T,D,A> ans{dim, dim};
-        std::copy( m.diag_begin(), m.diag_end(), ans.diag_begin(offset));
+        const std::size_t dim = std::min( m.row(), m.col() ) + ( offset > 0 ? offset : -offset );
+        matrix<T, A> ans{dim, dim};
+        std::copy( m.diag_begin(), m.diag_end(), ans.diag_begin( offset ) );
         return ans;
     }
 
     namespace diag_private
     {
         template<typename Itor>
-        matrix<typename std::iterator_traits<Itor>::value_type> const 
+        matrix<typename std::iterator_traits<Itor>::value_type> const
         impl_diag( Itor first, Itor last, const std::ptrdiff_t offset = 0 )
         {
             std::size_t dim = std::distance( first, last ) + ( offset > 0 ? offset : -offset );
             matrix<typename std::iterator_traits<Itor>::value_type> ans{ dim, dim };
-
-            std::copy( first, last, ans.diag_begin(offset) );
+            std::copy( first, last, ans.diag_begin( offset ) );
             return ans;
         }
     }//namespace diag_private
 
     template<typename T, typename A>
-    matrix<T> const diag( const std::vector<T,A>& v, const std::ptrdiff_t offset = 0 )
+    matrix<T> const diag( const std::vector<T, A>& v, const std::ptrdiff_t offset = 0 )
     {
         return diag_private::impl_diag( v.begin(), v.end(), offset );
     }
 
     template<typename T, typename A>
-    matrix<T> const diag( const std::deque<T,A>& v, const std::ptrdiff_t offset = 0 )
+    matrix<T> const diag( const std::deque<T, A>& v, const std::ptrdiff_t offset = 0 )
     {
         return diag_private::impl_diag( v.begin(), v.end(), offset );
     }
 
     template<typename T, typename C, typename A>
-    matrix<T> const diag( const std::set<T,C,A>& v, const std::ptrdiff_t offset = 0 )
+    matrix<T> const diag( const std::set<T, C, A>& v, const std::ptrdiff_t offset = 0 )
     {
         return diag_private::impl_diag( v.begin(), v.end(), offset );
     }
 
     template<typename T, typename C, typename A>
-    matrix<T> const diag( const std::multiset<T,C,A>& v, const std::ptrdiff_t offset = 0 )
+    matrix<T> const diag( const std::multiset<T, C, A>& v, const std::ptrdiff_t offset = 0 )
     {
         return diag_private::impl_diag( v.begin(), v.end(), offset );
     }
@@ -87,7 +76,7 @@ namespace f
     template<typename T>
     matrix<T> const diag( const std::valarray<T>& v, const std::ptrdiff_t offset = 0 )
     {
-        return diag_private::impl_diag( std::begin(v), std::end(v), offset );
+        return diag_private::impl_diag( std::begin( v ), std::end( v ), offset );
     }
 
     namespace make_diag_private
@@ -96,23 +85,23 @@ namespace f
         {
             std::size_t pos;
 
-            impl_make_diag( const std::size_t pos_ = 0 ) : pos(pos_) {}
+            impl_make_diag( const std::size_t pos_ = 0 ) : pos( pos_ ) {}
 
-            template<typename T, std::size_t D, typename A, typename Arg, typename ... Args>
-            void operator()( matrix<T,D,A>& m, const Arg& arg, const Args& ... args ) const
+            template<typename T,  typename A, typename Arg, typename ... Args>
+            void operator()( matrix<T, A>& m, const Arg& arg, const Args& ... args ) const
             {
                 m[pos][pos] = arg;
-                impl_make_diag(pos+1)(m, args...);
+                impl_make_diag( pos + 1 )( m, args... );
             }
 
-            template<typename T, std::size_t D, typename A, typename Arg>
-            void operator()( matrix<T,D,A>& m, const Arg& arg ) const
+            template<typename T,  typename A, typename Arg>
+            void operator()( matrix<T, A>& m, const Arg& arg ) const
             {
-                *(m.diag_rbegin()) = arg;
+                *( m.diag_rbegin() ) = arg;
             }
         };//struct impl_make_diag
-    
-    }//namespace make_diag_private 
+
+    }//namespace make_diag_private
 
     /*
         Input:
@@ -136,10 +125,10 @@ namespace f
     //matrix<T> const diag( const T& v1, const Tn& ... vn )
     matrix<T> const make_diag( const T& v1, const Tn& ... vn )
     {
-       const std::size_t n = 1 + sizeof...(vn);
-       matrix<T> ans{n,n};
-       make_diag_private::impl_make_diag()(ans, v1, vn...);
-       return ans;
+        const std::size_t n = 1 + sizeof...( vn );
+        matrix<T> ans{n, n};
+        make_diag_private::impl_make_diag()( ans, v1, vn... );
+        return ans;
     }
 
 
